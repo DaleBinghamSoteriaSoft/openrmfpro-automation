@@ -53,3 +53,7 @@ applications/python3/cgi-bin/__pycache__
 
 # MacOS Sonoma Fix for Requests
 python/path/to/venv
+
+# Any Python Cache files
+__pycache__/
+*.py[cod]
