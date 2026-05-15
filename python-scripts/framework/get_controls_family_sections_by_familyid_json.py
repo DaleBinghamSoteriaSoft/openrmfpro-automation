@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 # ============================================================
-# OpenRMF Professional External API - Controls Stateramp
-# API Path   : GET /controls/stateramp
-# Description: Retrieves data from the /controls/stateramp endpoint. The response is parsed as JSON and printed with standard indentation.
+# OpenRMF Professional External API - Controls Family
+# API Path   : GET /controls/family/{familyId}
+# Description: Retrieves data from the /controls/family/{familyId} endpoint. The response is parsed as JSON and printed with standard indentation.
 #
 # Required Parameters:
 #   1) rootURL            - The base server URL. The script validates it, trims any trailing slash, and appends /api/external automatically.
 #   2) applicationKey     - The application key appended to the request URL as the applicationKey query parameter.
 #   3) authorizationToken - The bearer token sent as the Authorization request header.
+#   4) familyId           - Required path parameter.
 #
 # Optional Parameters:
-#    - rev5 (query), type: boolean, default: False
+#   None
 #
 # Command Line Example:
-#   python3 get_controls_stateramp_json.py \
+#   python3 get_controls_family_by_familyid_json.py \
 #       https://example.openrmfpro.local \
 #       my-application-key \
 #       my-authorization-token \
-#       KEY=VALUE
+#       <familyId>
 # ============================================================
 
 import json
@@ -34,20 +35,20 @@ if str(COMMON_DIR) not in sys.path:
 
 from http_status_meanings import HTTP_STATUS_MEANINGS
 
-PATH_TEMPLATE = '/controls/stateramp'
+PATH_TEMPLATE = '/controls/family/{familyId}/sections/'
 HTTP_METHOD = 'GET'
-REQUIRED_POSITIONAL_ARGUMENTS = []
-PATH_PARAMETER_NAMES = []
-REQUIRED_QUERY_PARAMETER_NAMES = []
-OPTIONAL_QUERY_PARAMETER_NAMES = [
-    'rev5',
+REQUIRED_POSITIONAL_ARGUMENTS = [
+    'familyId',
 ]
+PATH_PARAMETER_NAMES = [
+    'familyId',
+]
+REQUIRED_QUERY_PARAMETER_NAMES = []
+OPTIONAL_QUERY_PARAMETER_NAMES = []
 REQUIRED_BODY_PARAMETER_NAMES = []
 OPTIONAL_BODY_PARAMETER_NAMES = []
 BINARY_BODY_PARAMETER_NAMES = []
-KNOWN_OPTIONAL_NAMES = [
-    'rev5',
-]
+KNOWN_OPTIONAL_NAMES = []
 FILE_EXTENSION_HINT = None
 ACCEPT_HEADER = None
 
@@ -119,7 +120,7 @@ def determine_output_path(response, options: dict[str, str]) -> Path:
 # -------------------------------------------------------
 # Validate required arguments and map them to API parameters
 # -------------------------------------------------------
-minimum_argument_count = 4 + 0
+minimum_argument_count = 4 + 1
 if len(sys.argv) < minimum_argument_count:
     print("ERROR: Missing required parameters.")
     print("Usage: python3 " + Path(__file__).name + " <rootURL> <applicationKey> <authorizationToken>" + (" " + " ".join(f"<{name}>" for name in REQUIRED_POSITIONAL_ARGUMENTS) if REQUIRED_POSITIONAL_ARGUMENTS else "") + (" [KEY=VALUE ...]" if KNOWN_OPTIONAL_NAMES or OPTIONAL_QUERY_PARAMETER_NAMES or OPTIONAL_BODY_PARAMETER_NAMES else ""))
@@ -128,8 +129,8 @@ if len(sys.argv) < minimum_argument_count:
 root_url = sys.argv[1]
 application_key = sys.argv[2]
 authorization_token = sys.argv[3]
-positional_values = sys.argv[4:4 + 0]
-optional_values = sys.argv[4 + 0:]
+positional_values = sys.argv[4:4 + 1]
+optional_values = sys.argv[4 + 1:]
 
 api_root = normalize_root_url(root_url)
 

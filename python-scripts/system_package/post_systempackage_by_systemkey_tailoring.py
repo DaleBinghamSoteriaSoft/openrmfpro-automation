@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 # ============================================================
-# OpenRMF Professional External API - Controls Stateramp Level
-# API Path   : GET /controls/stateramp/level/{level}
-# Description: Retrieves data from the /controls/stateramp/level/{level} endpoint. The response is parsed as JSON and printed with standard indentation.
+# OpenRMF Professional External API - System Package Tailoring
+# API Path   : POST /systempackage/{systemKey}/tailoring
+# Description: Submits data to the /systempackage/{systemKey}/tailoring endpoint. The script reports the HTTP status code and a human-readable meaning.
 #
 # Required Parameters:
 #   1) rootURL            - The base server URL. The script validates it, trims any trailing slash, and appends /api/external automatically.
 #   2) applicationKey     - The application key appended to the request URL as the applicationKey query parameter.
 #   3) authorizationToken - The bearer token sent as the Authorization request header.
-#   4) level              - Required path parameter.
+#   4) systemKey          - Required path parameter.
+#   5) tailoringFile      - Required multipart form file path sent as form field tailoringFile.
 #
 # Optional Parameters:
-#    - rev5 (query), type: boolean, default: False
+#   None
 #
 # Command Line Example:
-#   python3 get_controls_stateramp_level_by_level_json.py \
+#   python3 post_systempackage_by_systemkey_tailoring.py \
 #       https://example.openrmfpro.local \
 #       my-application-key \
 #       my-authorization-token \
-#       <level> \
-#       KEY=VALUE
+#       <systemKey> \
+#       <tailoringFile>
 # ============================================================
 
 import json
@@ -36,26 +37,27 @@ if str(COMMON_DIR) not in sys.path:
 
 from http_status_meanings import HTTP_STATUS_MEANINGS
 
-PATH_TEMPLATE = '/controls/stateramp/level/{level}'
-HTTP_METHOD = 'GET'
+PATH_TEMPLATE = '/systempackage/{systemKey}/tailoring'
+HTTP_METHOD = 'POST'
 REQUIRED_POSITIONAL_ARGUMENTS = [
-    'level',
+    'systemKey',
+    'tailoringFile',
 ]
 PATH_PARAMETER_NAMES = [
-    'level',
+    'systemKey',
 ]
 REQUIRED_QUERY_PARAMETER_NAMES = []
-OPTIONAL_QUERY_PARAMETER_NAMES = [
-    'rev5',
+OPTIONAL_QUERY_PARAMETER_NAMES = []
+REQUIRED_BODY_PARAMETER_NAMES = [
+    'tailoringFile',
 ]
-REQUIRED_BODY_PARAMETER_NAMES = []
 OPTIONAL_BODY_PARAMETER_NAMES = []
-BINARY_BODY_PARAMETER_NAMES = []
-KNOWN_OPTIONAL_NAMES = [
-    'rev5',
+BINARY_BODY_PARAMETER_NAMES = [
+    'tailoringFile',
 ]
+KNOWN_OPTIONAL_NAMES = []
 FILE_EXTENSION_HINT = None
-ACCEPT_HEADER = None
+ACCEPT_HEADER = 'application/json'
 
 # -------------------------------------------------------
 # Validate the root URL and normalize it for external API calls
@@ -125,7 +127,7 @@ def determine_output_path(response, options: dict[str, str]) -> Path:
 # -------------------------------------------------------
 # Validate required arguments and map them to API parameters
 # -------------------------------------------------------
-minimum_argument_count = 4 + 1
+minimum_argument_count = 4 + 2
 if len(sys.argv) < minimum_argument_count:
     print("ERROR: Missing required parameters.")
     print("Usage: python3 " + Path(__file__).name + " <rootURL> <applicationKey> <authorizationToken>" + (" " + " ".join(f"<{name}>" for name in REQUIRED_POSITIONAL_ARGUMENTS) if REQUIRED_POSITIONAL_ARGUMENTS else "") + (" [KEY=VALUE ...]" if KNOWN_OPTIONAL_NAMES or OPTIONAL_QUERY_PARAMETER_NAMES or OPTIONAL_BODY_PARAMETER_NAMES else ""))
@@ -134,8 +136,8 @@ if len(sys.argv) < minimum_argument_count:
 root_url = sys.argv[1]
 application_key = sys.argv[2]
 authorization_token = sys.argv[3]
-positional_values = sys.argv[4:4 + 1]
-optional_values = sys.argv[4 + 1:]
+positional_values = sys.argv[4:4 + 2]
+optional_values = sys.argv[4 + 2:]
 
 api_root = normalize_root_url(root_url)
 
@@ -171,7 +173,21 @@ for name in OPTIONAL_BODY_PARAMETER_NAMES:
     if name in optional_arguments:
         form_data[name] = optional_arguments[name]
 
+request_files = {}
+file_handles = []
 try:
+    for name in BINARY_BODY_PARAMETER_NAMES:
+        if name in form_data:
+            file_path = Path(form_data.pop(name)).expanduser()
+            if not file_path.is_file():
+                print(f"ERROR: File parameter '{name}' does not point to a readable file: {file_path}")
+                sys.exit(1)
+            handle = open(file_path, "rb")
+            file_handles.append(handle)
+            # Mirror the older working upload shape: send a single opened file via files=
+            # so ASP.NET Core sees one item in Request.Form.Files.
+            request_files[file_path.name] = handle
+
     url = build_url(api_root, path_values, query_values)
 
     # -------------------------------------------------------
@@ -185,6 +201,8 @@ try:
     request_kwargs = {"headers": headers}
     if form_data:
         request_kwargs["data"] = form_data
+    if request_files:
+        request_kwargs["files"] = request_files
     if False:
         request_kwargs["stream"] = True
 
@@ -196,25 +214,14 @@ try:
 except requests.exceptions.RequestException as exc:
     print(f"ERROR: The request failed before a response was received. Details: {exc}")
     sys.exit(1)
+finally:
+    for handle in file_handles:
+        handle.close()
 
 # -------------------------------------------------------
-# Debug output for troubleshooting non-status responses
+# Print the returned HTTP status code and a human-readable meaning
 # -------------------------------------------------------
-# print(f"Response Status Code: {response.status_code}")
-# print(f"Response Text: {response.text}")
-
-# -------------------------------------------------------
-# Parse and print the response as formatted JSON
-# -------------------------------------------------------
-if 200 <= response.status_code < 300:
-    try:
-        print(json.dumps(response.json(), indent=2, sort_keys=False))
-    except ValueError:
-        print("ERROR: The endpoint did not return valid JSON.")
-        print(response.text)
-        sys.exit(1)
-else:
-    meaning = HTTP_STATUS_MEANINGS.get(response.status_code, "Unexpected status code returned by the server.")
-    print(f"ERROR: HTTP {response.status_code} - {meaning}")
+meaning = HTTP_STATUS_MEANINGS.get(response.status_code, "Unexpected status code returned by the server.")
+print(f"Result: HTTP {response.status_code} - {meaning}")
+if response.text.strip():
     print(response.text)
-    sys.exit(1)
