@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # ============================================================
-# OpenRMF Professional External API - Systempackage Compliance Score
-# API Path   : GET /systempackage/{systemKey}/compliance/{complianceId}/score
-# Description: Retrieves data from the /systempackage/{systemKey}/compliance/{complianceId}/score endpoint. The response is parsed as JSON and printed with standard indentation.
+# OpenRMF Professional External API - Systempackage Compliance All Control Score
+# API Path   : GET /systempackage/{systemKey}/compliance/{complianceId}/allcontrols
+# Description: Retrieves data from the /systempackage/{systemKey}/compliance/{complianceId}/allcontrols endpoint. The response is parsed as JSON and printed with standard indentation.
 #
 # Required Parameters:
 #   1) rootURL            - The base server URL. The script validates it, trims any trailing slash, and appends /api/external automatically.
@@ -11,17 +11,13 @@
 #   4) systemKey          - Required path parameter.
 #   5) complianceId       - Required path parameter.
 #
-# Optional Parameters:
-#    - family (query), type: string, default:
-#
 # Command Line Example:
-#   python3 get_systempackage_by_systemkey_compliance_by_complianceid_score_json.py \
+#   python3 get_systempackage_by_systemkey_compliance_by_complianceid_allcontrolscore_json.py \
 #       https://example.openrmfpro.local \
 #       my-application-key \
 #       my-authorization-token \
 #       <systemKey> \
-#       <complianceId> \
-#       KEY=VALUE
+#       <complianceId>
 # ============================================================
 
 import json
@@ -38,7 +34,7 @@ if str(COMMON_DIR) not in sys.path:
 
 from http_status_meanings import HTTP_STATUS_MEANINGS
 
-PATH_TEMPLATE = '/systempackage/{systemKey}/compliance/{complianceId}/score'
+PATH_TEMPLATE = '/systempackage/{systemKey}/compliance/{complianceId}/allcontrols'
 HTTP_METHOD = 'GET'
 REQUIRED_POSITIONAL_ARGUMENTS = [
     'systemKey',
@@ -49,17 +45,14 @@ PATH_PARAMETER_NAMES = [
     'complianceId',
 ]
 REQUIRED_QUERY_PARAMETER_NAMES = []
-OPTIONAL_QUERY_PARAMETER_NAMES = [
-    'family',
-]
+OPTIONAL_QUERY_PARAMETER_NAMES = []
 REQUIRED_BODY_PARAMETER_NAMES = []
 OPTIONAL_BODY_PARAMETER_NAMES = []
 BINARY_BODY_PARAMETER_NAMES = []
-KNOWN_OPTIONAL_NAMES = [
-    'family',
-]
+KNOWN_OPTIONAL_NAMES = []
 FILE_EXTENSION_HINT = None
 ACCEPT_HEADER = None
+
 
 # -------------------------------------------------------
 # Validate the root URL and normalize it for external API calls
