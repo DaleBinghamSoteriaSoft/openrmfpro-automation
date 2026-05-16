@@ -49,7 +49,6 @@ PATH_PARAMETER_NAMES = [
     'complianceId',
 ]
 REQUIRED_QUERY_PARAMETER_NAMES = [
-    'family',
 ]
 OPTIONAL_QUERY_PARAMETER_NAMES = [
     'family',
