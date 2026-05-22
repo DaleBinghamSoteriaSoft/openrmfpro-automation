@@ -5069,6 +5069,35 @@
         }
       }
     },
+    "/systempackage/{systemKey}/poam/emassupload": {
+      "post": {
+        "tags": [
+          "External"
+        ],
+        "parameters": [
+          {
+            "name": "applicationKey",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "systemKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/teamsubpackages": {
       "get": {
         "tags": [
