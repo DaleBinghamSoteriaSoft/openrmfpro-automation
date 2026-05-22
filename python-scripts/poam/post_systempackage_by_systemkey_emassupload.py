@@ -57,7 +57,7 @@ BINARY_BODY_PARAMETER_NAMES = [
 ]
 KNOWN_OPTIONAL_NAMES = []
 FILE_EXTENSION_HINT = None
-ACCEPT_HEADER = None
+ACCEPT_HEADER = 'application/json'
 
 # -------------------------------------------------------
 # Validate the root URL and normalize it for external API calls
