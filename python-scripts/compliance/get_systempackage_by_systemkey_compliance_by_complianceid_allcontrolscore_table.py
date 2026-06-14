@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # ============================================================
-# OpenRMF Professional External API - Systempackage Compliance Score
-# API Path   : GET /systempackage/{systemKey}/compliance/{complianceId}/score
-# Description: Retrieves data from the /systempackage/{systemKey}/compliance/{complianceId}/score endpoint. The response is parsed as JSON and printed with standard indentation.
+# OpenRMF Professional External API - Systempackage Compliance All Control Score
+# API Path   : GET /systempackage/{systemKey}/compliance/{complianceId}/allcontrols
+# Description: Retrieves data from the /systempackage/{systemKey}/compliance/{complianceId}/allcontrols endpoint. The response is parsed as JSON and rendered as a PrettyTable.
 #
 # Required Parameters:
 #   1) rootURL            - The base server URL. The script validates it, trims any trailing slash, and appends /api/external automatically.
@@ -11,17 +11,13 @@
 #   4) systemKey          - Required path parameter.
 #   5) complianceId       - Required path parameter.
 #
-# Optional Parameters:
-#    - family (query), type: string, default:
-#
 # Command Line Example:
-#   python3 get_systempackage_by_systemkey_compliance_by_complianceid_score_json.py \
+#   python3 get_systempackage_by_systemkey_compliance_by_complianceid_allcontrolscore_table.py \
 #       https://example.openrmfpro.local \
 #       my-application-key \
 #       my-authorization-token \
 #       <systemKey> \
-#       <complianceId> \
-#       KEY=VALUE
+#       <complianceId>
 # ============================================================
 
 import json
@@ -31,6 +27,7 @@ from pathlib import Path
 from urllib.parse import quote, urlencode, urlsplit
 import requests
 from requests.structures import CaseInsensitiveDict
+from prettytable import PrettyTable
 
 COMMON_DIR = Path(__file__).resolve().parent.parent / "common"
 if str(COMMON_DIR) not in sys.path:
@@ -38,7 +35,7 @@ if str(COMMON_DIR) not in sys.path:
 
 from http_status_meanings import HTTP_STATUS_MEANINGS
 
-PATH_TEMPLATE = '/systempackage/{systemKey}/compliance/{complianceId}/score'
+PATH_TEMPLATE = '/systempackage/{systemKey}/compliance/{complianceId}/allcontrols'
 HTTP_METHOD = 'GET'
 REQUIRED_POSITIONAL_ARGUMENTS = [
     'systemKey',
@@ -49,15 +46,11 @@ PATH_PARAMETER_NAMES = [
     'complianceId',
 ]
 REQUIRED_QUERY_PARAMETER_NAMES = []
-OPTIONAL_QUERY_PARAMETER_NAMES = [
-    'family',
-]
+OPTIONAL_QUERY_PARAMETER_NAMES = []
 REQUIRED_BODY_PARAMETER_NAMES = []
 OPTIONAL_BODY_PARAMETER_NAMES = []
 BINARY_BODY_PARAMETER_NAMES = []
-KNOWN_OPTIONAL_NAMES = [
-    'family',
-]
+KNOWN_OPTIONAL_NAMES = []
 FILE_EXTENSION_HINT = None
 ACCEPT_HEADER = None
 
@@ -208,15 +201,47 @@ except requests.exceptions.RequestException as exc:
 # print(f"Response Text: {response.text}")
 
 # -------------------------------------------------------
-# Parse and print the response as formatted JSON
+# Parse and print the response as a PrettyTable
 # -------------------------------------------------------
 if 200 <= response.status_code < 300:
     try:
-        print(json.dumps(response.json(), indent=2, sort_keys=False))
+        payload = response.json()
     except ValueError:
         print("ERROR: The endpoint did not return valid JSON.")
         print(response.text)
         sys.exit(1)
+
+    if isinstance(payload, dict):
+        table = PrettyTable()
+        table.field_names = ["Field", "Value"]
+        for key, value in payload.items():
+            table.add_row([key, stringify_value(value)])
+        print(table)
+    elif isinstance(payload, list):
+        if not payload:
+            print("No rows were returned.")
+        elif all(isinstance(item, dict) for item in payload):
+            field_names = []
+            for item in payload:
+                for key in item.keys():
+                    if key not in field_names:
+                        field_names.append(key)
+            table = PrettyTable()
+            table.field_names = field_names
+            for item in payload:
+                table.add_row([stringify_value(item.get(name)) for name in field_names])
+            print(table)
+        else:
+            table = PrettyTable()
+            table.field_names = ["Value"]
+            for item in payload:
+                table.add_row([stringify_value(item)])
+            print(table)
+    else:
+        table = PrettyTable()
+        table.field_names = ["Value"]
+        table.add_row([stringify_value(payload)])
+        print(table)
 else:
     meaning = HTTP_STATUS_MEANINGS.get(response.status_code, "Unexpected status code returned by the server.")
     print(f"ERROR: HTTP {response.status_code} - {meaning}")

@@ -121,7 +121,7 @@ def determine_output_path(response, options: dict[str, str]) -> Path:
 # -------------------------------------------------------
 # Validate required arguments and map them to API parameters
 # -------------------------------------------------------
-minimum_argument_count = 4 + 1
+minimum_argument_count = 4 + 2
 if len(sys.argv) < minimum_argument_count:
     print("ERROR: Missing required parameters.")
     print("Usage: python3 " + Path(__file__).name + " <rootURL> <applicationKey> <authorizationToken>" + (" " + " ".join(f"<{name}>" for name in REQUIRED_POSITIONAL_ARGUMENTS) if REQUIRED_POSITIONAL_ARGUMENTS else "") + (" [KEY=VALUE ...]" if KNOWN_OPTIONAL_NAMES or OPTIONAL_QUERY_PARAMETER_NAMES or OPTIONAL_BODY_PARAMETER_NAMES else ""))
@@ -130,8 +130,8 @@ if len(sys.argv) < minimum_argument_count:
 root_url = sys.argv[1]
 application_key = sys.argv[2]
 authorization_token = sys.argv[3]
-positional_values = sys.argv[4:4 + 1]
-optional_values = sys.argv[4 + 1:]
+positional_values = sys.argv[4:4 + 2]
+optional_values = sys.argv[4 + 2:]
 
 api_root = normalize_root_url(root_url)
 

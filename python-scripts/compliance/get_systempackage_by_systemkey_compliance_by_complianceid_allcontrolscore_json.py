@@ -1,24 +1,23 @@
 #!/usr/bin/env python3
 # ============================================================
-# OpenRMF Professional External API - Controls Family
-# API Path   : GET /controls/family/{familyId}
-# Description: Retrieves data from the /controls/family/{familyId} endpoint. The response is parsed as JSON and printed with standard indentation.
+# OpenRMF Professional External API - Systempackage Compliance All Control Score
+# API Path   : GET /systempackage/{systemKey}/compliance/{complianceId}/allcontrols
+# Description: Retrieves data from the /systempackage/{systemKey}/compliance/{complianceId}/allcontrols endpoint. The response is parsed as JSON and printed with standard indentation.
 #
 # Required Parameters:
 #   1) rootURL            - The base server URL. The script validates it, trims any trailing slash, and appends /api/external automatically.
 #   2) applicationKey     - The application key appended to the request URL as the applicationKey query parameter.
 #   3) authorizationToken - The bearer token sent as the Authorization request header.
-#   4) familyId           - Required path parameter.
-#
-# Optional Parameters:
-#   None
+#   4) systemKey          - Required path parameter.
+#   5) complianceId       - Required path parameter.
 #
 # Command Line Example:
-#   python3 get_controls_family_by_familyid_json.py \
+#   python3 get_systempackage_by_systemkey_compliance_by_complianceid_allcontrolscore_json.py \
 #       https://example.openrmfpro.local \
 #       my-application-key \
 #       my-authorization-token \
-#       <familyId>
+#       <systemKey> \
+#       <complianceId>
 # ============================================================
 
 import json
@@ -35,13 +34,15 @@ if str(COMMON_DIR) not in sys.path:
 
 from http_status_meanings import HTTP_STATUS_MEANINGS
 
-PATH_TEMPLATE = '/controls/family/{familyId}/sections/'
+PATH_TEMPLATE = '/systempackage/{systemKey}/compliance/{complianceId}/allcontrols'
 HTTP_METHOD = 'GET'
 REQUIRED_POSITIONAL_ARGUMENTS = [
-    'familyId',
+    'systemKey',
+    'complianceId',
 ]
 PATH_PARAMETER_NAMES = [
-    'familyId',
+    'systemKey',
+    'complianceId',
 ]
 REQUIRED_QUERY_PARAMETER_NAMES = []
 OPTIONAL_QUERY_PARAMETER_NAMES = []

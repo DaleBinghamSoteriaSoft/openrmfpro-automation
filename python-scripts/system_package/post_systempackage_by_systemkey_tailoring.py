@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ============================================================
-# OpenRMF Professional External API - System Package Tailoring
+# OpenRMF Professional External API - System Package Tailoring Upload
 # API Path   : POST /systempackage/{systemKey}/tailoring
 # Description: Submits data to the /systempackage/{systemKey}/tailoring endpoint. The script reports the HTTP status code and a human-readable meaning.
 #
@@ -47,8 +47,8 @@ PATH_PARAMETER_NAMES = [
     'systemKey',
 ]
 REQUIRED_QUERY_PARAMETER_NAMES = []
-OPTIONAL_QUERY_PARAMETER_NAMES = []
-REQUIRED_BODY_PARAMETER_NAMES = [
+OPTIONAL_BODY_PARAMETER_NAMES = []
+BINARY_BODY_PARAMETER_NAMES = [
     'tailoringFile',
 ]
 OPTIONAL_BODY_PARAMETER_NAMES = []
@@ -187,7 +187,6 @@ try:
             # Mirror the older working upload shape: send a single opened file via files=
             # so ASP.NET Core sees one item in Request.Form.Files.
             request_files[file_path.name] = handle
-
     url = build_url(api_root, path_values, query_values)
 
     # -------------------------------------------------------

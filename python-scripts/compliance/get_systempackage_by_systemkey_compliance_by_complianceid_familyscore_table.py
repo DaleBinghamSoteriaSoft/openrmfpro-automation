@@ -1,24 +1,27 @@
 #!/usr/bin/env python3
 # ============================================================
-# OpenRMF Professional External API - Systempackage Readiness
-# API Path   : GET /systempackage/{systemKey}/readiness
-# Description: Retrieves data from the /systempackage/{systemKey}/readiness endpoint. The response is parsed as JSON and rendered as a PrettyTable.
+# OpenRMF Professional External API - Systempackage Compliance Score
+# API Path   : GET /systempackage/{systemKey}/compliance/{complianceId}/score
+# Description: Retrieves data from the /systempackage/{systemKey}/compliance/{complianceId}/score endpoint. The response is parsed as JSON and rendered as a PrettyTable.
 #
 # Required Parameters:
 #   1) rootURL            - The base server URL. The script validates it, trims any trailing slash, and appends /api/external automatically.
 #   2) applicationKey     - The application key appended to the request URL as the applicationKey query parameter.
 #   3) authorizationToken - The bearer token sent as the Authorization request header.
 #   4) systemKey          - Required path parameter.
+#   5) complianceId       - Required path parameter.
 #
 # Optional Parameters:
-#   None
+#    - family (query), type: string, default:
 #
 # Command Line Example:
-#   python3 get_systempackage_by_systemkey_readiness_table.py \
+#   python3 get_systempackage_by_systemkey_compliance_by_complianceid_score_table.py \
 #       https://example.openrmfpro.local \
 #       my-application-key \
 #       my-authorization-token \
-#       <systemKey>
+#       <systemKey> \
+#       <complianceId> \
+#       KEY=VALUE
 # ============================================================
 
 import json
@@ -36,22 +39,29 @@ if str(COMMON_DIR) not in sys.path:
 
 from http_status_meanings import HTTP_STATUS_MEANINGS
 
-PATH_TEMPLATE = '/systempackage/{systemKey}/readiness'
+PATH_TEMPLATE = '/systempackage/{systemKey}/compliance/{complianceId}/score'
 HTTP_METHOD = 'GET'
 REQUIRED_POSITIONAL_ARGUMENTS = [
     'systemKey',
+    'complianceId',
 ]
 PATH_PARAMETER_NAMES = [
     'systemKey',
+    'complianceId',
 ]
-REQUIRED_QUERY_PARAMETER_NAMES = []
-OPTIONAL_QUERY_PARAMETER_NAMES = []
+REQUIRED_QUERY_PARAMETER_NAMES = [
+]
+OPTIONAL_QUERY_PARAMETER_NAMES = [
+    'family',
+]
 REQUIRED_BODY_PARAMETER_NAMES = []
 OPTIONAL_BODY_PARAMETER_NAMES = []
 BINARY_BODY_PARAMETER_NAMES = []
-KNOWN_OPTIONAL_NAMES = []
+KNOWN_OPTIONAL_NAMES = [
+    'family',
+]
 FILE_EXTENSION_HINT = None
-ACCEPT_HEADER = 'application/json'
+ACCEPT_HEADER = None
 
 # -------------------------------------------------------
 # Validate the root URL and normalize it for external API calls
@@ -121,7 +131,7 @@ def determine_output_path(response, options: dict[str, str]) -> Path:
 # -------------------------------------------------------
 # Validate required arguments and map them to API parameters
 # -------------------------------------------------------
-minimum_argument_count = 4 + 1
+minimum_argument_count = 4 + 2
 if len(sys.argv) < minimum_argument_count:
     print("ERROR: Missing required parameters.")
     print("Usage: python3 " + Path(__file__).name + " <rootURL> <applicationKey> <authorizationToken>" + (" " + " ".join(f"<{name}>" for name in REQUIRED_POSITIONAL_ARGUMENTS) if REQUIRED_POSITIONAL_ARGUMENTS else "") + (" [KEY=VALUE ...]" if KNOWN_OPTIONAL_NAMES or OPTIONAL_QUERY_PARAMETER_NAMES or OPTIONAL_BODY_PARAMETER_NAMES else ""))
@@ -130,8 +140,8 @@ if len(sys.argv) < minimum_argument_count:
 root_url = sys.argv[1]
 application_key = sys.argv[2]
 authorization_token = sys.argv[3]
-positional_values = sys.argv[4:4 + 1]
-optional_values = sys.argv[4 + 1:]
+positional_values = sys.argv[4:4 + 2]
+optional_values = sys.argv[4 + 2:]
 
 api_root = normalize_root_url(root_url)
 
@@ -166,6 +176,11 @@ form_data.update(required_body_values)
 for name in OPTIONAL_BODY_PARAMETER_NAMES:
     if name in optional_arguments:
         form_data[name] = optional_arguments[name]
+
+# Validate required query parameters
+if 'family' not in optional_arguments:
+    print("ERROR: Missing required query parameter 'family'.")
+    sys.exit(1)
 
 try:
     url = build_url(api_root, path_values, query_values)
